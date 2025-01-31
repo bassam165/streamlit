@@ -222,7 +222,6 @@ def generate_pdf_report(dataframe, timeframe, selected_date=None, month=None, ye
     
     return pdf
 
-
 # ----------------------------------
 # STREAMLIT APP
 # ----------------------------------
@@ -287,9 +286,9 @@ with tab2:
                 # Immediately offer a PDF of this single transaction
                 # -------------------
                 pdf_single = generate_single_transaction_pdf(entry)
-                pdf_buffer_single = BytesIO()
-                pdf_single.output(pdf_buffer_single)
-                pdf_buffer_single.seek(0)
+                # Use dest="S" to get PDF as a string; then encode
+                pdf_data_single = pdf_single.output(dest="S").encode("latin-1")
+                pdf_buffer_single = BytesIO(pdf_data_single)
                 
                 st.download_button(
                     label="🖨️ Print/Download This Transaction as PDF",
@@ -365,7 +364,6 @@ with tab3:
                 # Summary
                 st.subheader("💰 Financial Summary")
                 if not filtered_df.empty:
-                    # We already converted these columns to numeric in get_sheet_data()
                     colA, colB, colC = st.columns(3)
                     
                     total_buying = filtered_df['Buying Price'].sum()
@@ -391,9 +389,9 @@ with tab3:
                             year=year
                         )
                         
-                        pdf_buffer = BytesIO()
-                        pdf.output(pdf_buffer)
-                        pdf_buffer.seek(0)
+                        # Again, use dest="S" to get the PDF data
+                        pdf_data = pdf.output(dest="S").encode("latin-1")
+                        pdf_buffer = BytesIO(pdf_data)
                         
                         st.download_button(
                             label="⬇️ Download PDF Report",
